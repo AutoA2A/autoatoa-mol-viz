@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<title>导出与保存</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --secondary: #10b981;
+    --radius-card: 8px;
+    --radius-btn: 6px;
+    --spacing: 12px;
+    --margin: 16px;
+    --font-sans: 'Inter', sans-serif;
+  }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body {
+    font-family: var(--font-sans);
+    background:#f9fafb;
+    color:#1f2937;
+    line-height:1.5;
+  }
+  header {
+    background:var(--primary);
+    color:#fff;
+    padding:var(--margin);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
+  header h1 { font-size:1.5rem; margin:0; }
+  nav ul {
+    list-style:none;
+    display:flex;
+    gap:var(--margin);
+    flex-wrap:wrap;
+    justify-content:center;
+    margin:0;
+    padding:0;
+  }
+  nav a {
+    color:#fff;
+    text-decoration:none;
+    background:rgba(255,255,255,0.15);
+    padding:var(--spacing);
+    border-radius:var(--radius-btn);
+    font-weight:500;
+    transition:background .2s;
+  }
+  nav a:hover { background:rgba(255,255,255,0.25); }
+  main {
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    min-height:calc(100vh - (header.offsetHeight + 0px));
+    padding:var(--margin);
+    gap:var(--margin);
+    flex-wrap:wrap;
+  }
+  /* Mobile adjustments */
+  @media (max-width:600px) {
+    header { align-items:stretch; text-align:center; }
+    nav ul { flex-direction:column; align-items:center; gap:8px; }
+    main { align-items:center; }
+  }
+</style>
+<meta name="description" content="导出当前分子为 PDB/SDF 文件，或保存会话链接，支持一键下载。"><meta name="keywords" content="分子可视化,3D模型,结构编辑,文件上传,结果导出"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="导出与保存"><meta property="og:description" content="导出当前分子为 PDB/SDF 文件，或保存会话链接，支持一键下载。"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="导出与保存"><meta name="twitter:description" content="导出当前分子为 PDB/SDF 文件，或保存会话链接，支持一键下载。"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"导出与保存","description":"导出当前分子为 PDB/SDF 文件，或保存会话链接，支持一键下载。","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
+<body>
+<header>
+  <h1>分子可视化工具</h1>
+  <nav>
+    <ul>
+      <li><a href="index.html">首页</a></li>
+      <li><a href="upload.html">上传分子文件</a></li>
+      <li><a href="editor.html">分子编辑器</a></li>
+      <li><a href="analysis.html">结果分析</a></li>
+      <li><a href="export.html">导出与保存</a></li>
+    </ul>
+  </nav>
+</header>
+<main>
+  
+<sectionstyle="margin:var(--margin);"><h2 style="margin:0 0 var(--spacing);color:#1f2937;font-size:1.5rem;">导出与保存</h2><div style="color:#4b5563;">
+<article style="border-radius:var(--radius-card);background:#fff;padding:var(--spacing);margin:var(--margin);box-shadow:0 1px 3px rgba(0,0,0,0.1);"><h3 style="margin:0 0 var(--spacing);font-size:1.125rem;">导出操作</h3><div style="margin:0;color:#4b5563;">
+<p id="molInfo" style="margin-bottom:var(--spacing);">未检测到分子数据。</p>
+<button id="btnPdb" style="background:var(--primary);color:#fff;border:none;border-radius:var(--radius-btn);padding:var(--spacing) calc(var(--spacing)*2);font-weight:500;cursor:pointer;transition:background .2s;">导出 PDB</button>
+<button id="btnSdf" style="background:var(--secondary);color:#fff;border:none;border-radius:var(--radius-btn);padding:var(--spacing) calc(var(--spacing)*2);font-weight:500;cursor:pointer;transition:background .2s;margin-left:var(--spacing);">导出 SDF</button>
+</div></article>
+
+<article style="border-radius:var(--radius-card);background:#fff;padding:var(--spacing);margin:var(--margin);box-shadow:0 1px 3px rgba(0,0,0,0.1);"><h3 style="margin:0 0 var(--spacing);font-size:1.125rem;">会话链接</h3><div style="margin:0;color:#4b5563;">
+<p id="linkInfo" style="margin-bottom:var(--spacing);">点击生成可共享的会话链接。</p>
+<button id="btnLink" style="background:var(--primary);color:#fff;border:none;border-radius:var(--radius-btn);padding:var(--spacing) calc(var(--spacing)*2);font-weight:500;cursor:pointer;transition:background .2s;">生成链接</button>
+<a id="linkDownload" style="display:inline-block;margin-top:var(--spacing);color:var(--secondary);text-decoration:none;">下载链接文件</a>
+</div></article>
+</div></section>
+<script>
+(function(){
+    const STORAGE_KEY = 'moleculeData';
+    const molInfo = document.getElementById('molInfo');
+    const btnPdb = document.getElementById('btnPdb');
+    const btnSdf = document.getElementById('btnSdf');
+    const btnLink = document.getElementById('btnLink');
+    const linkInfo = document.getElementById('linkInfo');
+    const linkDownload = document.getElementById('linkDownload');
+
+    function loadMol(){
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw){ return null; }
+        try{ return JSON.parse(raw); }catch(e){ return null; }
+    }
+    function saveMol(obj){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+    }
+    function mol = loadMol();
+    if(mol && mol.atoms){
+        molInfo.textContent = `原子数: ${mol.atoms.length}, 键数: ${mol.bonds ? mol.bonds.length : 0}`;
+    }else{
+        molInfo.textContent = '未检测到分子数据。';
+    }
+
+    function atomToPDB(atom, idx){
+        const elem = atom.element || 'C';
+        const x = (atom.x||0).toFixed(3).padStart(8,' ');
+        const y = (atom.y||0).toFixed(3).padStart(8,' ');
+        const z = (atom.z||0).toFixed(3).padStart(8,' ');
+        return `ATOM  ${String(idx+1).padStart(5)}  ${elem.padEnd(2)}  MOL     1    ${x}${y}${z}  1.00  0.00          ${elem}\n`;
+    }
+    function bondToPDB(){ return ''; } // PDB doesn't need bonds in simple model
+
+    function exportPDB(){
+        const m = loadMol();
+        if(!m || !m.atoms){ alert('没有可导入的分子数据'); return; }
+        let lines = ['MODEL     1'];
+        m.atoms.forEach((a,i)=> lines.push(atomToPDB(a,i)));
+        lines.push('ENDMDL');
+        const blob = new Blob([lines.join('')],{type:'chemical/x-pdb'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'molecule.pdb';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+    function exportSDF(){
+        const m = loadMol();
+        if(!m || !m.atoms){ alert('没有可导入的分子数据'); return; }
+        const atomBlock = [];
+        const bondBlock = [];
+        m.atoms.forEach((a,i)=>{
+            const elem = a.element||'C';
+            const x = (a.x||0).toFixed(4);
+            const y = (a.y||0).toFixed(4);
+            const z = (a.z||0).toFixed(4);
+            atomBlock.push(`${x}${y}${z} ${elem.padRight?elem.padRight(3,' '):elem+'   '} 0  0  0  0  0  0  0  0  0  0  0`);
+        });
+        if(m.bonds){
+            m.bonds.forEach(b=>{
+                bondBlock.push(`${(b.a1+1).toString().padStart(3)}${ (b.a2+1).toString().padStart(3)}${ (b.order||1).toString().padStart(3) }  0  0  0  0`);
+            });
+        }
+        const countsLine = `${String(m.atoms.length).padStart(3)}${String(m.bonds?m.bonds.length:0).padStart(3)}  0  0  0  0  0  0  0  0  0  0  0`;
+        const sdf = [
+            '  Molecule export',
+            '  Generated by Molecule Tool',
+            '',
+            countsLine,
+            ...atomBlock,
+            ...bondBlock,
+            'M  END',
+            '$$$$'
+        ].join('\n');
+        const blob = new Blob([sdf],{type:'chemical/x-mdl-sdf'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'molecule.sdf';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+    function encodeMol(){
+        const m = loadMol();
+        if(!m){ return null; }
+        return btoa(unescape(encodeURIComponent(JSON.stringify(m))));
+    }
+    function decodeMol(str){
+        try{
+            const json = decodeURIComponent(escape(atob(str)));
+            return JSON.parse(json);
+        }catch(e){ return null; }
+    }
+    function generateLink(){
+        const data = encodeMol();
+        if(!data){ alert('没有可保存的分子数据'); return; }
+        const url = window.location.origin + window.location.pathname + '#' + data;
+        linkInfo.textContent = `会话链接已生成：${url}`;
+        linkDownload.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(url);
+        linkDownload.download = 'session.txt';
+        linkDownload.style.display = 'inline-block';
+    }
+    function loadHash(){
+        const hash = window.location.hash.substring(1);
+        if(!hash){ return; }
+        const mol = decodeMol(hash);
+        if(mol){
+            saveMol(mol);
+            molInfo.textContent = `已从链接加载：原子数 ${mol.atoms.length}, 键数 ${mol.bonds?mol.bonds.length:0}`;
+            // optionally auto-trigger something else
+        }else{
+            linkInfo.textContent = '链接数据无效。';
+        }
+    }
+    btnPdb.onclick = exportPDB;
+    btnSdf.onclick = exportSDF;
+    btnLink.onclick = generateLink;
+    window.onload = loadHash;
+})();
+</script>
+
+</main>
+<footer data-a2a="footer" style="margin-top:48px;padding:28px 16px;border-top:1px solid rgba(127,127,127,.16);text-align:center;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;line-height:1.9;color:#8a8f99;background:transparent"><a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:10px"><img src="https://agent.oagi.com.cn/uploads/202606/29ea3ed5413830b3.png" alt="AutoA2A" style="height:36px;vertical-align:middle;border:0"></a><div style="font-size:13.5px;color:#6b7280;max-width:760px;margin:0 auto 6px">✅️ <b>AutoA2A</b> · 智能体互连 Agent to Agent 平台——让智能体无缝发现、协商、协作与安全交换数据，开启 AI 即服务新时代。</div><div style="font-size:13px">本网站由 <a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="color:#f2603c;text-decoration:none;font-weight:600">www.autoa2a.org</a> 多个 AI 协作生成</div><div style="font-size:12px;color:#aab;margin-top:6px">Copyright © 2025 - 2026 AutoA2A. All Rights Reserved. A2A版权所有</div></footer></body>
+</html>
