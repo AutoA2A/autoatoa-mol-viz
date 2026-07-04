@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<title>分子编辑器</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --secondary: #10b981;
+    --radius-card: 8px;
+    --radius-btn: 6px;
+    --spacing: 12px;
+    --margin: 16px;
+    --font-sans: 'Inter', sans-serif;
+  }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body {
+    font-family: var(--font-sans);
+    background:#f9fafb;
+    color:#1f2937;
+    line-height:1.5;
+  }
+  header {
+    background:var(--primary);
+    color:#fff;
+    padding:var(--margin);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
+  header h1 { font-size:1.5rem; margin:0; }
+  nav ul {
+    list-style:none;
+    display:flex;
+    gap:var(--margin);
+    flex-wrap:wrap;
+    justify-content:center;
+    margin:0;
+    padding:0;
+  }
+  nav a {
+    color:#fff;
+    text-decoration:none;
+    background:rgba(255,255,255,0.15);
+    padding:var(--spacing);
+    border-radius:var(--radius-btn);
+    font-weight:500;
+    transition:background .2s;
+  }
+  nav a:hover { background:rgba(255,255,255,0.25); }
+  main {
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    min-height:calc(100vh - (header.offsetHeight + 0px));
+    padding:var(--margin);
+    gap:var(--margin);
+    flex-wrap:wrap;
+  }
+  /* Mobile adjustments */
+  @media (max-width:600px) {
+    header { align-items:stretch; text-align:center; }
+    nav ul { flex-direction:column; align-items:center; gap:8px; }
+    main { align-items:center; }
+  }
+</style>
+<meta name="description" content="在线构建或修改分子结构，提供原子添加、键连接、删除等工具，实时预览。"><meta name="keywords" content="分子可视化,3D模型,结构编辑,文件上传,结果导出"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="分子编辑器"><meta property="og:description" content="在线构建或修改分子结构，提供原子添加、键连接、删除等工具，实时预览。"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="分子编辑器"><meta name="twitter:description" content="在线构建或修改分子结构，提供原子添加、键连接、删除等工具，实时预览。"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"分子编辑器","description":"在线构建或修改分子结构，提供原子添加、键连接、删除等工具，实时预览。","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
+<body>
+<header>
+  <h1>分子可视化工具</h1>
+  <nav>
+    <ul>
+      <li><a href="index.html">首页</a></li>
+      <li><a href="upload.html">上传分子文件</a></li>
+      <li><a href="editor.html">分子编辑器</a></li>
+      <li><a href="analysis.html">结果分析</a></li>
+      <li><a href="export.html">导出与保存</a></li>
+    </ul>
+  </nav>
+</header>
+<main>
+  
+<section style="margin:var(--margin);">
+  <h2 style="margin:0 0 var(--spacing);color:#1f2937;font-size:1.5rem;">分子编辑器</h2>
+  <div style="display:flex;gap:var(--margin);flex-wrap:wrap;">
+    <!-- Tools card -->
+    <article style="border-radius:var(--radius-card);background:#fff;padding:var(--spacing);margin:var(--margin);box-shadow:0 1px 3px rgba(0,0,0,0.1);width:260px;">
+      <h3 style="margin:0 0 var(--spacing);font-size:1.125rem;">工具</h3>
+      <div style="display:flex;flex-direction:column;gap:var(--spacing);">
+        <label style="font-size:0.9rem;color:#374151;">元素:</label>
+        <select id="element-select" style="padding:var(--spacing);border-radius:var(--radius-btn);border:1px solid #d1d5db;">
+          <option value="C">C</option>
+          <option value="O">O</option>
+          <option value="N">N</option>
+          <option value="H">H</option>
+          <option value="S">S</option>
+          <option value="P">P</option>
+        </select>
+        <button id="tool-add" style="background:var(--primary);color:#fff;border:none;border-radius:var(--radius-btn);padding:var(--spacing) calc(var(--spacing)*2);font-weight:500;cursor:pointer;transition:background .2s;">添加原子</button>
+        <button id="tool-bond" style="background:var(--secondary);color:#fff;border:none;border-radius:var(--radius-btn);padding:var(--spacing) calc(var(--spacing)*2);font-weight:500;cursor:pointer;transition:background .2s;">连接键</button>
+        <button id="tool-delete" style="background:#ef4444;color:#fff;border:none;border-radius:var(--radius-btn);padding:var(--spacing) calc(var(--spacing)*2);font-weight:500;cursor:pointer;transition:background .2s;">删除</button>
+        <button id="tool-clear" style="background:#6b7280;color:#fff;border:none;border-radius:var(--radius-btn);padding:var(--spacing) calc(var(--spacing)*2);font-weight:500;cursor:pointer;transition:background .2s;">清空</button>
+      </div>
+    </article>
+    <!-- Canvas -->
+    <div style="flex:1;min-width:400px;">
+      <svg id="mol-svg" width="800" height="600" style="border:1px solid #e5e7eb;border-radius:var(--radius-card);background:#fff;"></svg>
+    </div>
+  </div>
+</section>
+<script>
+  const svg = document.getElementById('mol-svg');
+  const elementSelect = document.getElementById('element-select');
+  const toolAdd = document.getElementById('tool-add');
+  const toolBond = document.getElementById('tool-bond');
+  const toolDel = document.getElementById('tool-delete');
+  const toolClear = document.getElementById('tool-clear');
+
+  let atoms = []; // each: {id, x, y, elem, circle, text, g}
+  let bonds = []; // each: {line, aId, bId}
+  let currentTool = 'add';
+  let selectedAtom = null;
+  let nextId = 1;
+
+  const elemColors = {
+    C: '#8b4513',
+    O: '#ff0000',
+    N: '#0000ff',
+    H: '#ffffff',
+    S: '#ffff00',
+    P: '#ffa500'
+  };
+
+  function setActiveTool(btn) {
+    [toolAdd, toolBond, toolDel, toolClear].forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  toolAdd.onclick = () => { currentTool = 'add'; setActiveTool(toolAdd); };
+  toolBond.onclick = () => { currentTool = 'bond'; setActiveTool(toolBond); };
+  toolDel.onclick = () => { currentTool = 'delete'; setActiveTool(toolDel); };
+  toolClear.onclick = () => { currentTool = 'clear'; setActiveTool(toolClear); clearAll(); };
+
+  function getMousePoint(evt) {
+    const rect = svg.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
+  }
+
+  function findAtom(x, y) {
+    for (const a of atoms) {
+      const dx = a.x - x;
+      const dy = a.y - y;
+      if (Math.hypot(dx, dy) < 15) return a;
+    }
+    return null;
+  }
+
+  function addAtom(x, y, elem) {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('r', '12');
+    circle.setAttribute('fill', elemColors[elem] || '#999');
+    circle.setAttribute('cx', x);
+    circle.setAttribute('cy', y);
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', x);
+    text.setAttribute('y', y + 4);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('fill', '#fff');
+    text.setAttribute('font-size', '10');
+    text.textContent = elem;
+    g.appendChild(circle);
+    g.appendChild(text);
+    svg.appendChild(g);
+    const id = nextId++;
+    atoms.push({id, x, y, elem, circle, text, g});
+    return {id, x, y, elem, circle, text, g};
+  }
+
+  function addBond(aId, bId) {
+    const a = atoms.find(at => at.id === aId);
+    const b = atoms.find(at => at.id === bId);
+    if (!a || !b) return;
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', a.x);
+    line.setAttribute('y1', a.y);
+    line.setAttribute('x2', b.x);
+    line.setAttribute('y2', b.y);
+    line.setAttribute('stroke', '#555');
+    line.setAttribute('stroke-width', '2');
+    svg.appendChild(line);
+    bonds.push({line, aId, bId});
+  }
+
+  function deleteAtom(atom) {
+    bonds = bonds.filter(b => {
+      if (b.aId === atom.id || b.bId === atom.id) {
+        svg.removeChild(b.line);
+        return false;
+      }
+      return true;
+    });
+    svg.removeChild(atom.g);
+    atoms = atoms.filter(at => at.id !== atom.id);
+    if (selectedAtom === atom) selectedAtom = null;
+  }
+
+  function clearAll() {
+    svg.innerHTML = '';
+    atoms = [];
+    bonds = [];
+    selectedAtom = null;
+  }
+
+  svg.addEventListener('mousedown', (evt) => {
+    const pt = getMousePoint(evt);
+    if (currentTool === 'add') {
+      const elem = elementSelect.value;
+      addAtom(pt.x, pt.y, elem);
+    } else if (currentTool === 'bond') {
+      const atom = findAtom(pt.x, pt.y);
+      if (!atom) {
+        selectedAtom = null;
+        return;
+      }
+      if (!selectedAtom) {
+        selectedAtom = atom;
+        atom.circle.setAttribute('stroke', '#000');
+        atom.circle.setAttribute('stroke-width', '2');
+      } else {
+        if (selectedAtom.id !== atom.id) {
+          addBond(selectedAtom.id, atom.id);
+        }
+        if (selectedAtom.circle) {
+          selectedAtom.circle.removeAttribute('stroke');
+          selectedAtom.circle.removeAttribute('stroke-width');
+        }
+        selectedAtom = null;
+      }
+    } else if (currentTool === 'delete') {
+      const atom = findAtom(pt.x, pt.y);
+      if (atom) deleteAtom(atom);
+    } else if (currentTool === 'clear') {
+      clearAll();
+    }
+  });
+
+  setActiveTool(toolAdd);
+</script>
+
+</main>
+<footer data-a2a="footer" style="margin-top:48px;padding:28px 16px;border-top:1px solid rgba(127,127,127,.16);text-align:center;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;line-height:1.9;color:#8a8f99;background:transparent"><a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:10px"><img src="https://agent.oagi.com.cn/uploads/202606/29ea3ed5413830b3.png" alt="AutoA2A" style="height:36px;vertical-align:middle;border:0"></a><div style="font-size:13.5px;color:#6b7280;max-width:760px;margin:0 auto 6px">✅️ <b>AutoA2A</b> · 智能体互连 Agent to Agent 平台——让智能体无缝发现、协商、协作与安全交换数据，开启 AI 即服务新时代。</div><div style="font-size:13px">本网站由 <a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="color:#f2603c;text-decoration:none;font-weight:600">www.autoa2a.org</a> 多个 AI 协作生成</div><div style="font-size:12px;color:#aab;margin-top:6px">Copyright © 2025 - 2026 AutoA2A. All Rights Reserved. A2A版权所有</div></footer></body>
+</html>
