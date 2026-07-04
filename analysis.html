@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<title>结果分析</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --secondary: #10b981;
+    --radius-card: 8px;
+    --radius-btn: 6px;
+    --spacing: 12px;
+    --margin: 16px;
+    --font-sans: 'Inter', sans-serif;
+  }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body {
+    font-family: var(--font-sans);
+    background:#f9fafb;
+    color:#1f2937;
+    line-height:1.5;
+  }
+  header {
+    background:var(--primary);
+    color:#fff;
+    padding:var(--margin);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
+  header h1 { font-size:1.5rem; margin:0; }
+  nav ul {
+    list-style:none;
+    display:flex;
+    gap:var(--margin);
+    flex-wrap:wrap;
+    justify-content:center;
+    margin:0;
+    padding:0;
+  }
+  nav a {
+    color:#fff;
+    text-decoration:none;
+    background:rgba(255,255,255,0.15);
+    padding:var(--spacing);
+    border-radius:var(--radius-btn);
+    font-weight:500;
+    transition:background .2s;
+  }
+  nav a:hover { background:rgba(255,255,255,0.25); }
+  main {
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    min-height:calc(100vh - (header.offsetHeight + 0px));
+    padding:var(--margin);
+    gap:var(--margin);
+    flex-wrap:wrap;
+  }
+  /* Mobile adjustments */
+  @media (max-width:600px) {
+    header { align-items:stretch; text-align:center; }
+    nav ul { flex-direction:column; align-items:center; gap:8px; }
+    main { align-items:center; }
+  }
+</style>
+<meta name="description" content="提供距离、角度、扭转角测量，显示能量等统计信息。"><meta name="keywords" content="分子可视化,3D模型,结构编辑,文件上传,结果导出"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="结果分析"><meta property="og:description" content="提供距离、角度、扭转角测量，显示能量等统计信息。"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="结果分析"><meta name="twitter:description" content="提供距离、角度、扭转角测量，显示能量等统计信息。"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"结果分析","description":"提供距离、角度、扭转角测量，显示能量等统计信息。","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
+<body>
+<header>
+  <h1>分子可视化工具</h1>
+  <nav>
+    <ul>
+      <li><a href="index.html">首页</a></li>
+      <li><a href="upload.html">上传分子文件</a></li>
+      <li><a href="editor.html">分子编辑器</a></li>
+      <li><a href="analysis.html">结果分析</a></li>
+      <li><a href="export.html">导出与保存</a></li>
+    </ul>
+  </nav>
+</header>
+<main>
+  
+<section style="margin:var(--margin);"><h2 style="margin:0 0 var(--spacing);color:#1f2937;font-size:1.5rem;">结果分析</h2><div style="color:#4b5563;">上传 PDB 文件，点击原子进行距离、角度、扭角测量，查看基本统计信息。</div></section>
+
+<article style="border-radius:var(--radius-card);background:#fff;padding:var(--spacing);margin:var(--margin);box-shadow:0 1px 3px rgba(0,0,0,0.1);"><h3 style="margin:0 0 var(--spacing);font-size:1.125rem;">加载分子</h3><div style="color:#4b5563;"><input type="file" id="molFile" accept=".pdb" style="margin-top:var(--spacing);padding:var(--spacing);border:1px solid #d1d5db;border-radius:var(--radius-btn);width:100%;max-width:300px;"></div></article>
+
+<article style="border-radius:var(--radius-card);background:#fff;padding:var(--spacing);margin:var(--margin);box-shadow:0 1px 3px rgba(0,0,0,0.1);"><h3 style="margin:0 0 var(--spacing);font-size:1.125rem;">分子视图</h3><div style="color:#4b5563;position:relative;width:100%;max-width:600px;height:400px;background:#f0f0f0;"><svg id="molSvg" width="100%" height="100%" style="display:block;"></svg></div></article>
+
+<article style="border-radius:var(--radius-card);background:#fff;padding:var(--spacing);margin:var(--margin);box-shadow:0 1px 3px rgba(0,0,0,0.1);"><h3 style="margin:0 0 var(--spacing);font-size:1.125rem;">测量结果</h3><div style="color:#4b5563;" id="measureResult">请选择原子进行测量。</div></article>
+
+<article style="border-radius:var(--radius-card);background:#fff;padding:var(--spacing);margin:var(--margin);box-shadow:0 1px 3px rgba(0,0,0,0.1);"><h3 style="margin:0 0 var(--spacing);font-size:1.125rem;">统计信息</h3><div style="color:#4b5563;" id="statsInfo">未加载分子。</div></article>
+
+<button style="background:var(--primary);color:#fff;border:none;border-radius:var(--radius-btn);padding:var(--spacing) calc(var(--spacing)*2);font-weight:500;cursor:pointer;transition:background .2s;margin:var(--margin);" id="clearBtn">清除选择</button>
+
+<script>
+(function(){
+    const fileInput = document.getElementById('molFile');
+    const svg = document.getElementById('molSvg');
+    const measureDiv = document.getElementById('measureResult');
+    const statsDiv = document.getElementById('statsInfo');
+    const clearBtn = document.getElementById('clearBtn');
+
+    let atoms = []; // {x,y,z,element}
+    let selected = []; // indices of selected atoms
+    const atomRadius = 5;
+
+    fileInput.addEventListener('change', function(e){
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(ev){
+            const text = ev.target.result;
+            atoms = parsePDB(text);
+            if(atoms.length===0){
+                alert('未解析到任何原子，请检查文件格式。');
+                return;
+            }
+            renderMolecule();
+            updateStats();
+            clearSelection();
+        };
+        reader.readAsText(file);
+    });
+
+    function parsePDB(text){
+        const res = [];
+        const lines = text.split('\n');
+        for(const line of lines){
+            if(line.startsWith('ATOM  ') || line.startsWith('HETATM')){
+                try{
+                    const x = parseFloat(line.substring(30,38));
+                    const y = parseFloat(line.substring(38,46));
+                    const z = parseFloat(line.substring(46,54));
+                    const elem = line.substring(76,78).trim();
+                    res.push({x,y,z,element:elem||'C'});
+                }catch(_){}
+            }
+        }
+        return res;
+    }
+
+    function renderMolecule(){
+        if(!atoms.length){ svg.innerHTML=''; return; }
+        const xs = atoms.map(a=>a.x);
+        const ys = atoms.map(a=>a.y);
+        const minX = Math.min(...xs), maxX = Math.max(...xs);
+        const minY = Math.min(...ys), maxY = Math.max(...ys);
+        const rangeX = maxX-minX || 1;
+        const rangeY = maxY-minY || 1;
+        const padding = 20;
+        const width = svg.clientWidth || 600;
+        const height = svg.clientHeight || 400;
+        const scale = Math.min((width-2*padding)/rangeX, (height-2*padding)/rangeY);
+        const cx = padding + (width-2*padding)/2 - scale*(minX+maxX)/2;
+        const cy = padding + (height-2*padding)/2 + scale*(minY+maxY)/2; // note Y flip
+
+        svg.innerHTML = '';
+        atoms.forEach((a,i)=>{
+            const sx = cx + a.x*scale;
+            const sy = cy - a.y*scale; // invert Y for SVG
+            const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+            circle.setAttribute('cx',sx);
+            circle.setAttribute('cy',sy);
+            circle.setAttribute('r',atomRadius);
+            circle.setAttribute('fill','var(--secondary)');
+            circle.setAttribute('stroke','#fff');
+            circle.setAttribute('stroke-width',1);
+            circle.setAttribute('data-index',i);
+            circle.style.cursor='pointer';
+            circle.addEventListener('click',onAtomClick);
+            svg.appendChild(circle);
+        });
+    }
+
+    function onAtomClick(e){
+        const idx = Number(e.currentTarget.getAttribute('data-index'));
+        const pos = selected.indexOf(idx);
+        if(pos>=0){
+            selected.splice(pos,1);
+            e.currentTarget.setAttribute('fill','var(--secondary)');
+        }else{
+            if(selected.length>=4){
+                alert('最多只能选择4个原子进行测量。');
+                return;
+            }
+            selected.push(idx);
+            e.currentTarget.setAttribute('fill','var(--primary)');
+        }
+        updateMeasurements();
+    }
+
+    function clearSelection(){
+        selected = [];
+        measureDiv.textContent = '请选择原子进行测量。';
+        const circles = svg.querySelectorAll('circle');
+        circles.forEach(c=>c.setAttribute('fill','var(--secondary)'));
+    }
+
+    clearBtn.addEventListener('click',clearSelection);
+
+    function updateMeasurements(){
+        if(selected.length<2){
+            measureDiv.textContent = '请选择原子进行测量。';
+            return;
+        }
+        const pts = selected.map(i=>atoms[i]);
+        let html = '';
+        if(selected.length===2){
+            const d = distance(pts[0],pts[1]);
+            html = `距离：${d.toFixed(3)} Å`;
+        }else if(selected.length===3){
+            const ang = angle(pts[0],pts[1],pts[2]);
+            html = `角度：${ang.toFixed(2)}°`;
+        }else if(selected.length===4){
+            const tor = torsion(pts[0],pts[1],pts[2],pts[3]);
+            html = `扭角：${tor.toFixed(2)}°`;
+        }
+        measureDiv.innerHTML = html;
+    }
+
+    function distance(a,b){
+        const dx=a.x-b.x, dy=a.y-b.y, dz=a.z-b.z;
+        return Math.sqrt(dx*dx+dy*dy+dz*dz);
+    }
+    function angle(a,b,c){
+        const ab = {x:a.x-b.x, y:a.y-b.y, z:a.z-b.z};
+        const cb = {x:c.x-b.x, y:c.y-b.y, z:c.z-b.z};
+        const dot = ab.x*cb.x+ab.y*cb.y+ab.z*cb.z;
+        const normAb = Math.sqrt(ab.x*ab.x+ab.y*ab.y+ab.z*ab.z);
+        const normCb = Math.sqrt(cb.x*cb.x+cb.y*cb.y+cb.z*cb.z);
+        const cos = dot/(normAb*normCb);
+        const clamped = Math.max(-1,Math.min(1,cos));
+        return Math.acos(clamped)*180/Math.PI;
+    }
+    function torsion(a,b,c,d){
+        const b_a = {x:a.x-b.x, y:a.y-b.y, z:a.z-b.z};
+        const c_b = {x:b.x-c.x, y:b.y-c.y, z:b.z-c.z};
+        const d_c = {x:c.x-d.x, y:c.y-d.y, z:c.z-d.z};
+        const n1 = cross(b_a, c_b);
+        const n2 = cross(c_b, d_c);
+        const n1_n2 = dot(n1, n2);
+        const n1_norm = Math.sqrt(n1.x*n1.x+n1.y*n1.y+n1.z*n1.z);
+        const n2_norm = Math.sqrt(n2.x*n2.x+n2.y*n2.y+n2.z*n2.z);
+        const m = cross(n1, c_b);
+        const x = dot(m, n2);
+        const y = dot(n1, n2);
+        const angle = Math.atan2(x, y)*180/Math.PI;
+        return angle;
+    }
+    function dot(v,w){ return v.x*w.x+v.y*w.y+v.z*w.z; }
+    function cross(v,w){
+        return {
+            x: v.y*w.z - v.z*w.y,
+            y: v.z*w.x - v.x*w.z,
+            z: v.x*w.y - v.y*w.x
+        };
+    }
+
+    function updateStats(){
+        if(!atoms.length){
+            statsDiv.textContent = '未加载分子。';
+            return;
+        }
+        const n = atoms.length;
+        const sumX = atoms.reduce((s,a)=>s+a.x,0);
+        const sumY = atoms.reduce((s,a)=>s+a.y,0);
+        const sumZ = atoms.reduce((s,a)=>s+a.z,0);
+        const com = {x:sumX/n, y:sumY/n, z:sumZ/n};
+        const xs = atoms.map(a=>a.x);
+        const ys = atoms.map(a=>a.y);
+        const zs = atoms.map(a=>a.z);
+        const range = {
+            x: Math.max(...xs)-Math.min(...xs),
+            y: Math.max(...ys)-Math.min(...ys),
+            z: Math.max(...zs)-Math.min(...zs)
+        };
+        statsDiv.innerHTML = `
+            原子数：${n}<br>
+            质量中心：(${com.x.toFixed(2)}, ${com.y.toFixed(2)}, ${com.z.toFixed(2)}) Å<br>
+            尺寸范围：X ${range.x.toFixed(2)} Å, Y ${range.y.toFixed(2)} Å, Z ${range.z.toFixed(2)} Å
+        `;
+    }
+})();
+</script>
+
+</main>
+<footer data-a2a="footer" style="margin-top:48px;padding:28px 16px;border-top:1px solid rgba(127,127,127,.16);text-align:center;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;line-height:1.9;color:#8a8f99;background:transparent"><a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:10px"><img src="https://agent.oagi.com.cn/uploads/202606/29ea3ed5413830b3.png" alt="AutoA2A" style="height:36px;vertical-align:middle;border:0"></a><div style="font-size:13.5px;color:#6b7280;max-width:760px;margin:0 auto 6px">✅️ <b>AutoA2A</b> · 智能体互连 Agent to Agent 平台——让智能体无缝发现、协商、协作与安全交换数据，开启 AI 即服务新时代。</div><div style="font-size:13px">本网站由 <a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="color:#f2603c;text-decoration:none;font-weight:600">www.autoa2a.org</a> 多个 AI 协作生成</div><div style="font-size:12px;color:#aab;margin-top:6px">Copyright © 2025 - 2026 AutoA2A. All Rights Reserved. A2A版权所有</div></footer></body>
+</html>
