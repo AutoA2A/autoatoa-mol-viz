@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<title>上传分子文件</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --secondary: #10b981;
+    --radius-card: 8px;
+    --radius-btn: 6px;
+    --spacing: 12px;
+    --margin: 16px;
+    --font-sans: 'Inter', sans-serif;
+  }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body {
+    font-family: var(--font-sans);
+    background:#f9fafb;
+    color:#1f2937;
+    line-height:1.5;
+  }
+  header {
+    background:var(--primary);
+    color:#fff;
+    padding:var(--margin);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
+  header h1 { font-size:1.5rem; margin:0; }
+  nav ul {
+    list-style:none;
+    display:flex;
+    gap:var(--margin);
+    flex-wrap:wrap;
+    justify-content:center;
+    margin:0;
+    padding:0;
+  }
+  nav a {
+    color:#fff;
+    text-decoration:none;
+    background:rgba(255,255,255,0.15);
+    padding:var(--spacing);
+    border-radius:var(--radius-btn);
+    font-weight:500;
+    transition:background .2s;
+  }
+  nav a:hover { background:rgba(255,255,255,0.25); }
+  main {
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    min-height:calc(100vh - (header.offsetHeight + 0px));
+    padding:var(--margin);
+    gap:var(--margin);
+    flex-wrap:wrap;
+  }
+  /* Mobile adjustments */
+  @media (max-width:600px) {
+    header { align-items:stretch; text-align:center; }
+    nav ul { flex-direction:column; align-items:center; gap:8px; }
+    main { align-items:center; }
+  }
+</style>
+<meta name="description" content="支持 PDB、SDF、MOL2 格式上传，解析后直接进入3D查看器。"><meta name="keywords" content="分子可视化,3D模型,结构编辑,文件上传,结果导出"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="上传分子文件"><meta property="og:description" content="支持 PDB、SDF、MOL2 格式上传，解析后直接进入3D查看器。"><meta name="twitter:card" content="summary"><meta name="twitter:title" content="上传分子文件"><meta name="twitter:description" content="支持 PDB、SDF、MOL2 格式上传，解析后直接进入3D查看器。"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"上传分子文件","description":"支持 PDB、SDF、MOL2 格式上传，解析后直接进入3D查看器。","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}</script><style data-a2a="basecss">*,*::before,*::after{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0}img,canvas,svg,video,table{max-width:100%;height:auto}pre,code{white-space:pre-wrap;word-break:break-word}[data-a2a="header"]{width:100%}@media(max-width:640px){body{font-size:15px}}</style></head>
+<body>
+<header>
+  <h1>分子可视化工具</h1>
+  <nav>
+    <ul>
+      <li><a href="index.html">首页</a></li>
+      <li><a href="upload.html">上传分子文件</a></li>
+      <li><a href="editor.html">分子编辑器</a></li>
+      <li><a href="analysis.html">结果分析</a></li>
+      <li><a href="export.html">导出与保存</a></li>
+    </ul>
+  </nav>
+</header>
+<main>
+  
+<section style="margin:var(--margin);"><h2 style="margin:0 0 var(--spacing);color:#1f2937;font-size:1.5rem;">上传分子文件</h2><div style="color:#4b5563;">支持 PDB、SDF、MOL2 格式上传，解析后直接进入 3D 查看器。</div></section>
+
+<article style="border-radius:var(--radius-card);background:#fff;padding:var(--spacing);margin:var(--margin);box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+  <h3 style="margin:0 0 var(--spacing);font-size:1.125rem;">选择文件</h3>
+  <p style="margin:0;color:#4b5563;">
+    <input type="file" id="molFile" accept=".pdb,.sdf,.mol2" style="display:block;margin-bottom:var(--spacing);">
+    <button id="viewBtn" style="background:var(--primary);color:#fff;border:none;border-radius:var(--radius-btn);padding:var(--spacing) calc(var(--spacing)*2);font-weight:500;cursor:pointer;transition:background .2s;">查看分子</button>
+  </p>
+</article>
+
+<script>
+document.getElementById('viewBtn').addEventListener('click', function () {
+  const fileInput = document.getElementById('molFile');
+  const file = fileInput.files[0];
+  if (!file) {
+    alert('请先选择一个分子文件');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const content = e.target.result;
+    // 将文件内容存入 localStorage，index.html 将读取并渲染
+    localStorage.setItem('uploadedMolecule', content);
+    // 跳转到 3D 查看器页面
+    window.location.href = 'index.html';
+  };
+  reader.onerror = function () {
+    alert('读取文件时出错');
+  };
+  reader.readAsText(file);
+});
+</script>
+
+</main>
+<footer data-a2a="footer" style="margin-top:48px;padding:28px 16px;border-top:1px solid rgba(127,127,127,.16);text-align:center;font-family:system-ui,-apple-system,'PingFang SC',sans-serif;line-height:1.9;color:#8a8f99;background:transparent"><a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:10px"><img src="https://agent.oagi.com.cn/uploads/202606/29ea3ed5413830b3.png" alt="AutoA2A" style="height:36px;vertical-align:middle;border:0"></a><div style="font-size:13.5px;color:#6b7280;max-width:760px;margin:0 auto 6px">✅️ <b>AutoA2A</b> · 智能体互连 Agent to Agent 平台——让智能体无缝发现、协商、协作与安全交换数据，开启 AI 即服务新时代。</div><div style="font-size:13px">本网站由 <a href="https://www.autoa2a.org" target="_blank" rel="noopener" style="color:#f2603c;text-decoration:none;font-weight:600">www.autoa2a.org</a> 多个 AI 协作生成</div><div style="font-size:12px;color:#aab;margin-top:6px">Copyright © 2025 - 2026 AutoA2A. All Rights Reserved. A2A版权所有</div></footer></body>
+</html>
